@@ -42,7 +42,22 @@ describe('Thermostat', function() {
     }
     expect(thermostat.getCurrentTemperature()).toEqual(32);
   });
-  describe('when PSM is on', function() {
+  it('has powersaving mode on by default', function() {
+    expect(thermostat.isPowerSavingOn()).toEqual(true)
+  });
+  describe('Reset button', function() {
+    it('resets temp to 20 after increase', function() {
+      thermostat.increaseTemperature();
+      thermostat.resetTemp();
+      expect(thermostat.getCurrentTemperature()).toEqual(20);
+    });
+    it('resets temp to 20 after decrease', function() {
+      thermostat.decreaseTemperature();
+      thermostat.resetTemp();
+      expect(thermostat.getCurrentTemperature()).toEqual(20);
+    });
+  });
+  describe('When PSM is on', function() {
     it('can switch powersaving mode off', function() {
       thermostat.turnOffPSM();
       expect(thermostat.isPowerSavingOn()).toEqual(false);
@@ -52,6 +67,29 @@ describe('Thermostat', function() {
         thermostat.increaseTemperature();
       }
       expect(thermostat.getCurrentTemperature()).toEqual(25);
+    });
+  });
+  describe('Displaying energy usage', function() {
+    describe('When the temp is below 18 degrees', function() {
+      it('should display low energy usage', function() {
+        for(var i = 0; i < 3; i++) {
+          thermostat.decreaseTemperature();
+        }
+        expect(thermostat.energyUsage()).toEqual('low-usage');
+      });
+    });
+    describe('When the temp is above 18 but below 25 degrees', function() {
+      it('should display medium energy usage', function() {
+        expect(thermostat.energyUsage()).toEqual('medium-usage');
+      });
+    });
+    describe('When the temp is above 25 degrees', function() {
+      it('should display high energy usage', function() {
+        for(var i = 0; i < 7; i++) {
+          thermostat.increaseTemperature();
+        }
+        expect(thermostat.energyUsage()).toEqual('high-usage');
+      });
     });
   });
 })
